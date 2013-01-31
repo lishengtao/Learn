@@ -1,0 +1,4 @@
+1. EGit 插件
+
+   http://www.cnblogs.com/wangshuai901/archive/2012/02/22/2363100.html
+
