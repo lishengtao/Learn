@@ -1,0 +1,48 @@
+<!DOCTYPE hibernate-configuration PUBLIC  
+    "-//Hibernate/Hibernate Configuration DTD 3.0//EN"  
+    "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">  
+<hibernate-configuration>  
+    <session-factory>  
+      <!--数据库连接设置-->  
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>  
+        <property name="connection.url">jdbc:mysql:///test</property>  
+        <property name="connection.username">root</property>  
+        <property name="connection.password">root</property>  
+  
+        <!--JDBC连接池大小-->  
+        <property name="connection.pool_size">2</property>  
+        <!-- 数据库语言 -->  
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>  
+        <!-- Hibernate当前的会话上下文 -->  
+        <property name="current_session_context_class">org.hibernate.context.ManagedSessionContext</property>  
+        <!-- 禁用二级缓存 -->  
+        <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>  
+        <!-- 控制台显示SQL语句 -->  
+        <property name="show_sql">true</property>  
+        <!-- 格式化SQL语句 -->  
+        <property name="hibernate.format_sql">true</property>  
+  
+	    <!--  
+	        启动时删数据库中的表，然后创建，退出时不删除数据表   
+	        <property name="hbm2ddl.auto">create</property>  
+	    -->  
+	    <!--  
+	        启动时删数据库中的表，然后创建，退出时自动删除所有表   
+	        <property name="hbm2ddl.auto">create-drop</property>  
+	    -->  
+	    <!--  
+	        自动修改，如果表结构与实体类不一致，那么就更新表结构，数据会保留  
+	        （如果原表不存在，就创建新表;如果缺少相应的字段，就加入;对于原来存在的多余字段，不作处理）  
+	        <property name="hbm2ddl.auto">update</property>  
+	    -->  
+	    <!--  
+	        自动校验，如果表结构与实体类不一致，那么不做任何操作，报错  
+	         <property name="hbm2ddl.auto">validate</property>  
+	    -->  
+         <!-- Drop and re-create the database schema on startup -->  
+        <property name="hbm2ddl.auto">create</property>  
+  
+        <!-- 实体关系映射文件 -->  
+        <mapping resource="com/javacrazyer/domain/Student.hbm.xml"/>  
+    </session-factory>  
+</hibernate-configuration> 
