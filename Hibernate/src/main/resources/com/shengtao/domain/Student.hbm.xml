@@ -6,7 +6,9 @@
         </id>  
         <property name="name" column="name" />  
         <property name="age"/>  
-        <property name="gender"/>  
+        <property name="gender" type="yes_no">
+            <column name="gender" sql-type="varchar2(1)"></column>
+        </property>  
         <property name="birthday"/>  
         <property name="score"/>  
     </class>  

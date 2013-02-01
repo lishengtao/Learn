@@ -10,7 +10,8 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 public class DBScriptExport {  
   
     public static void main(String[] args) {  
-        export2File("dbcript.sql");  
+        //export2File("dbcript.sql");  
+    	export2DB();
     }  
       
     public static void export2DB(){  
