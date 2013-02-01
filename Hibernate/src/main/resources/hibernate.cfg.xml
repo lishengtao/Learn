@@ -4,15 +4,15 @@
 <hibernate-configuration>  
     <session-factory>  
       <!--数据库连接设置-->  
-        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>  
-        <property name="connection.url">jdbc:mysql:///test</property>  
-        <property name="connection.username">root</property>  
-        <property name="connection.password">root</property>  
+        <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>  
+        <property name="connection.url">jdbc:oracle:thin:@192.168.70.70:1521/orcl</property>  
+        <property name="connection.username">SYS</property>  
+        <property name="connection.password">xinyongID5</property>  
   
         <!--JDBC连接池大小-->  
         <property name="connection.pool_size">2</property>  
         <!-- 数据库语言 -->  
-        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>  
+        <property name="dialect">org.hibernate.dialect.OracleDialect</property>  
         <!-- Hibernate当前的会话上下文 -->  
         <property name="current_session_context_class">org.hibernate.context.ManagedSessionContext</property>  
         <!-- 禁用二级缓存 -->  
@@ -43,6 +43,6 @@
         <property name="hbm2ddl.auto">create</property>  
   
         <!-- 实体关系映射文件 -->  
-        <mapping resource="com/javacrazyer/domain/Student.hbm.xml"/>  
+        <mapping resource="com/shengtao/domain/Student.hbm.xml"/>  
     </session-factory>  
 </hibernate-configuration> 
