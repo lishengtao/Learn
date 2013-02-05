@@ -1,0 +1,16 @@
+<!DOCTYPE hibernate-configuration  
+PUBLIC "-//Hibernate/Hibernate Configuration DTD//EN"  
+"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<session-factory>
+		<property name="hibernate.connection.provider_class">org.hibernate.service.jdbc.connections.internal.ProxoolConnectionProvider</property>
+		<property name="hibernate.proxool.pool_alias">DBPool</property>
+		<property name="hibernate.proxool.xml">proxool.xml</property>
+		<!--是否将运行期生成的SQL输出到日志以供调试 -->
+		<property name="show_sql">true</property>
+		<!--指定连接的语言 -->
+		<property name="dialect">org.hibernate.dialect.OracleDialect</property>
+		<!--映射Student这个资源 -->
+		<mapping resource="com/shengtao/domain/Student.hbm.xml" />
+	</session-factory>
+</hibernate-configuration>  

@@ -31,7 +31,7 @@ public class HibernateTest {
         stu.setAge(1);  
         stu.setGender(true);  
         stu.setScore(66.8);  
-          
+        
         //利用工厂打开一个Session实例  
         Session session = HibernateUtil.getSession();  
           

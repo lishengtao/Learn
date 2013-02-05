@@ -1,0 +1,46 @@
+<!DOCTYPE hibernate-configuration  
+  
+PUBLIC "-//Hibernate/Hibernate Configuration DTD//EN"  
+  
+"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+	<session-factory>  
+  
+<!--JDBC驱动程序-->
+		<property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
+		<!-- 连接数据库的URL -->
+		<property name="connection.url">jdbc:oracle:thin:@192.168.70.70:1521/orcl</property>
+		<property name="connection.useUnicode">true</property>
+		<property name="connection.characterEncoding">UTF-8</property>
+		<!--连接的登录名 -->
+		<property name="connection.username">scott</property>
+		<!--登录密码 -->
+		<property name="connection.password">tiger</property>
+
+
+		<!-- C3P0连接池设定 -->
+		<property name="hibernate.connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
+		<!--连接池的最小连接数 -->
+		<property name="hibernate.c3p0.min_size">5</property>
+		<!--最大连接数 -->
+		<property name="hibernate.c3p0.max_size">30</property>
+		<!--连接超时时间 -->
+		<property name="hibernate.c3p0.timeout">1800</property>
+		<!--statemnets缓存大小 -->
+		<property name="hibernate.c3p0.max_statements">100</property>
+		<!--每隔多少秒检测连接是否可正常使用 ；最后在网上找到一个办法。为hibernate配置连接池，推荐用c3p0，然后配置c3p0的反空闲设置idle_test_period，（只要小于MySQL的wait 
+			timeout即可，这句话后经证实不一定）。 -->
+		<property name="hibernate.c3p0.idle_test_period">121</property>
+		<!--当池中的连接耗尽的时候，一次性增加的连接数量,默认为3 -->
+		<property name="hibernate.c3p0.acquire_increment">1</property>
+		<property name="hibernate.c3p0.validate">true</property>
+		<!--是否将运行期生成的SQL输出到日志以供调试 -->
+		<property name="show_sql">true</property>
+		<!--指定连接的语言 -->
+		<property name="dialect">org.hibernate.dialect.OracleDialect</property>
+		<!--映射Student这个资源 -->
+		<mapping resource="com/shengtao/domain/Student.hbm.xml" />
+	</session-factory>
+</hibernate-configuration> 

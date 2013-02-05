@@ -28,3 +28,8 @@
    Java数据类型  <-> 中间数据类型 <-> 数据库中的数据类型
    
    Dialect中应该有线索
+   
+7. oracle 查看连接数
+
+   select username,count(username) from v$session where username is not null group by username 
+
