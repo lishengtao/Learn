@@ -195,7 +195,9 @@ JavaCrazyer 博客阅读笔记
 	  
 	  大批量的操作时，要周期性地管理以及缓存，以避免内存溢出。
 
+	  大批量数据处理性能高低：Hibernate < JDBC PreparedStatement < Stored Procedure
 
+	  可以通过Session的API调用JDBC的API
 	     
 
 	 二级缓存: SessionFactory范围内的缓存，应用或者集群范围内的缓存，可动态的加载和卸载
