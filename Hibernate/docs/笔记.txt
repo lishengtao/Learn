@@ -24,7 +24,229 @@ JavaCrazyer 博客阅读笔记
 4. JNDI 连接池
    doc/jndi.properties
 
-5. 
+5. Hibernate Session中对象的状态及状态转换
+
+   *  Transient   新创建的，没有和某个Session关联，没有OID
+   *  Persistent  和某个Session关联，有OID，数据库中有对应的记录
+                  Session在清理缓存时，会将处于此状态的对象与数据库进行同步。
+   *  Detached    没有和某个Session关联，有OID，数据库中有对应的记录
+                                                不保证此状态的对象和数据库表中的记录是否同步
+   *  Removed     与某个session进行关联。有对象标识符，数据库表中有对应的记录。
+                  session在清理缓存时，会把数据库表对应的记录删除掉。这个对象不能再去使用它.
+         
+6. Hibernate Session的缓存
+
+7. essionFactory.getCurrentSession()和sessionFactory.openSesion()的区别介绍
+
+
+  1. 如果使用的是getCurrentSession来创建session的话，在commit后，session就自动被关闭了，也就是不用再session.close()了。但是如果使用的是openSession方法创建的session的话，那么必须显示的关闭session，也就是调用session.close()方法。这样commit后，session并没有关闭
+
+
+  2.getCurrentSession创建的session会和绑定到当前线程,而openSession不会。getCurrentSession创建的线程会在事务回滚或事物提交后自动关闭,而openSession必须手动关闭, 
+
+
+  3.  使用SessionFactory.getCurrentSession()需要在hibernate.cfg.xml中如下配置：
+   *  如果采用jdbc独立引用程(本地事务：JDBC事务)序配置如下：
+      <property name="hibernate.current_session_context_class">thread</property>
+   *  如果采用了JTA事务配置(全局事务：JTA事务)如下 
+      <property name="hibernate.current_session_context_class">jta</property>
+
+
+  4.getCurrentSession () 使用当前的session 
+
+    openSession() 重新建立一个新的session 
+
+         总结：
+
+      getCurrentSession和openSession无论是那种方式，如果是纯JDBC项目的话，那你必须手动写上事务的开启和提交，openSession事务提交后还得手动写session.close()关闭，尽管是这样也不一定真的关了；getCurrentSession提交事务后会自动关闭session所以不用手动写session.close()
+
+               其实际项目(我指的是SSH项目)中由于在Spring中配置有事务管理，所以我们用getCurrentSession时手动写的关于事务的代码配置都不用写了
+
+8. Hibernate的查询
+
+   Hibernate目前总共分为三大类查询：cretiria,hql,本地sql 
+   
+   org.hibernate.Criteria接口表示特定持久类的一个查询。Session是 Criteria实例的工厂。
+
+
+9. 延迟加载
+
+   什么是延迟加载？
+
+   延迟加载的分类：实体，集合属性，属性
+
+   Hibernate中默认采用延迟加载的情况：load 加载实体，集合属性值，对象之间的关联
+
+   实体对象的延迟加载：
+
+       配置文件  lazy=true   CGLIB 代理类
+
+   集合的延迟加载：
+
+       lazy=true Hibernate自定义集合类型的实现
+
+       <set name=”addresses” table=”address” cascade="save-update" lazy=”true” inverse=”true”>  
+  
+	   <key column=”user_id”/>  
+	  
+	   <one-to-many class=”com.neusoft.entity.Arrderss”/>  
+	  
+	</set>  
+
+	   数据索引，Hibernate集合缓存中的数据索引
+
+	   集合类型的缓存策略 （还不理解）
+
+	   <cache usage=”read-write”/>  
+
+     属性的延迟加载：
+
+         Hibernate3
+
+	 对于大对象，如CLOB
+
+	 <property name=”resume” type=”java.sql.Clob” column=”resume” lazy=”true”/> 
+
+         CGLIB
+
+      关闭延迟加载：
+
+10。抓取策略：
+
+        什么是抓取策略？
+
+	几种抓取策略：怎么抓
+	
+	    连接抓取:  outer join
+
+	    查询抓取： 另一条查询语句 （默认）
+
+	    子查询抓取：子查询
+
+	    批量抓取： 主/外键列表
+
+	各种情况：何时抓
+
+	    立即抓取：
+
+	    延迟集合抓取：
+
+	    Extra-lazy 集合抓取：只加载集合中的部分实体
+
+	    代理抓取：对返回单值的关联而言，当调用其方法时，才抓取
+
+	    非代理抓取：访问实体标识符时就抓取
+	    
+	    属性延迟加载：访问实体的实例变量时加载 （默认）
+
+	操作延迟加载的关联：
+
+	    默认情况下，Hibernate 3对集合使用延迟select抓取，对返回单值的关联使用延迟代理抓取。
+
+	    调整抓取策略：
+
+	       N+1次查询  查询API/二级缓存
+
+	     批量抓取： 
+
+	         定义默认的批量抓取数量： 
+
+		     <property name-"default_batch_fetch_size">2</property>
+	         
+		      batch-size="3"
+
+11. 缓存管理
+
+    缓存概述：作用和目的，
+
+        缓存的实现需要内存和缓存管理程序：（如并发访问和过期处理等）
+
+    缓存的范围：决定了缓存的生命周期和可见性。
+
+        事务范围的缓存：一级缓存就属于事务范围
+
+	应用（进程）范围的缓存：二级缓存就属于应用范围
+
+	集群范围的缓存：
+
+     缓存的并发访问策略：（隔离）由高到低，越高，性能越低
+
+         事务型：可重复读 读多写较少
+
+	 读写型：Read Committed  读多写很少 
+
+	 非严格读写型：不保证缓存与数据库中数据的一致性  读多写极少
+
+	 只读型：
+
+     Hibernate中的缓存管理：
+
+         一级缓存：Session范围内的缓存，事务范围的缓存，内置，不可卸载，不能配置
+
+	     加载及清理时机
+	    
+	     Key-Value Map：Key是OID，Value是实体对象
+
+	     可通过API手工干预：evict（将某个对象从Session的一级缓存中清除）
+
+	                        clear （用于将一级缓存中的所有对象全部清除）
+
+	     Hibernate大批量更新时缓存的处理方法（）
+	  
+	  大批量的操作时，要周期性地管理以及缓存，以避免内存溢出。
+
+
+	     
+
+	 二级缓存: SessionFactory范围内的缓存，应用或者集群范围内的缓存，可动态的加载和卸载
+
+	 查询缓存依赖于二级缓存
+
+    
+
+      
+
+
+
+      
+
+
+
+         
+
+
+
+
+
+        
+
+     
+        
+	    
+	
+
+
+
+              
+
+		
+
+
+
+
+
+
+
+
+
+       
+
+
+   
+   
+   
+
+   
    
    
    

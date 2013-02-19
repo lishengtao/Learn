@@ -1,6 +1,7 @@
-<!DOCTYPE hibernate-configuration PUBLIC  
-    "-//Hibernate/Hibernate Configuration DTD 3.0//EN"  
-    "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">  
+<!DOCTYPE hibernate-configuration PUBLIC
+	"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
 <hibernate-configuration>  
     <session-factory>  
       <!--数据库连接设置-->  
@@ -14,7 +15,7 @@
         <!--JDBC连接池大小-->  
         <property name="connection.pool_size">2</property>  
         <!-- 数据库语言 -->  
-        <property name="dialect">org.hibernate.dialect.OracleDialect</property>  
+        <property name="dialect">org.hibernate.dialect.Oracle10gDialect</property>  
         <!-- Hibernate当前的会话上下文 -->  
         <property name="current_session_context_class">org.hibernate.context.internal.ManagedSessionContext</property>  
         <!-- 禁用二级缓存 -->  
@@ -42,7 +43,7 @@
 	         <property name="hbm2ddl.auto">validate</property>  
 	    -->  
          <!-- Drop and re-create the database schema on startup -->  
-        <property name="hbm2ddl.auto">create</property>  
+        <property name="hbm2ddl.auto">update</property>  
   
         <!-- 实体关系映射文件 -->  
         <mapping resource="com/shengtao/domain/Student.hbm.xml"/>  
