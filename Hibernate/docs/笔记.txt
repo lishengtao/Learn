@@ -202,7 +202,201 @@ JavaCrazyer 博客阅读笔记
 
 	 二级缓存: SessionFactory范围内的缓存，应用或者集群范围内的缓存，可动态的加载和卸载
 
-	 查询缓存依赖于二级缓存
+	     查询缓存依赖于二级缓存
+             
+	     缓存适配器
+
+	     Hibernate的一二级缓存使用过程（针对ID的缓存策略）
+
+	     增加针对查询的缓存策略
+
+	     Hibernate Query缓存的使用过程：1. Query Key，2. 查
+
+	 适合放到二级缓存中的数据：极少修改，允许并发，参考数据等
+
+	 常用的缓存插件：Ehcache OSCache（提供了丰富的缓存过期策略）
+
+
+	 二级缓存示例：
+
+	     <!--开启二级缓存-->  
+             <property name="cache.provider_class">org.hibernate.cache.EhCacheProvider</property>  
+             <!--启用查询缓存-->  
+             <property name="hibernate.cache.use_query_cache">true</property>
+
+	     工程项目src文件下新建一个ehcache.xml文件
+
+	     <?xml version="1.0" encoding="UTF-8"?>  
+             <ehcache>  
+                 <diskStore path="java.io.tmpdir" />  
+                 <defaultCache maxElementsInMemory="10000" eternal="false" overflowToDisk="true" timeToIdleSeconds="300" timeToLiveSeconds="180" diskPersistent="false" diskExpiryThreadIntervalSeconds="120" />  
+             </ehcache>
+
+	     为了缓存某类的对象，其hbm文件中需添加<cache usage="read-only"/>
+
+	     为了使用查询缓存，Query必须设置cacheable为true,query.setCacheable(true);
+
+	     当要缓存的对象处于级联关系中时。如果和他存在级联关系的对象都有属性 <cache usage="read-only"/>那么，在第一次get后该对象所处的对象图中的所有对象都会保存到hibernate的二级缓存中，在第二次get该对象时，直接从二级缓存中找到所有级联的对象；如果其中某个级联对象没有<cache usage="read-only"/>属性，则不会被保存到二级缓存中，以后每次get时仍然会执行sql去数据库中找该级联对象
+
+17. OpenSessionInView模式
+
+    解决什么问题？ LazyInitializationException
+
+    中心思路：在用户的每一次请求过程始终保持一个持久化上下文打开着
+
+    OpenSessionInView模式的具体实现：
+
+       a. 把Session绑定到当前线程上
+
+          <!--把session附加到当前线程上-->  
+          <property name="hibernate.current_session_context_class">thread</property>
+
+	  在程序代码中获取Session实例时，使用SessionFactory的getCurrentSession()方法
+
+       b. 用Filter过滤器在请求到达之前打开Session,在相应返回前关闭Session
+
+          SessionFactory 是线程安全的
+
+       c.  在WEB应用的web.xml中配置Filter过滤器
+ 
+ 18. Hibernate Envers目的是根据对实体的设置，提供记录执行数据变更历史的功能(数据变更版本)。它实现原理是通过对Hibernate的操作事件监听并根据
+     基于Annoatation的配置来记录修改数据的内容。
+
+ 19. Hibernate 继承关系的映射
+ 
+     多态查询
+
+     a. 继承关系树的根类对应一个表，在表中增加区分子类别的字段，以使关系数据模型支持继承关系和多态
+
+        <hibernate-mapping package="com.reiyen.hibernate.domain">  
+	    <class name="Employee" discriminator-value="0">  
+		<id name="id">  
+		    <generator class="native" />  
+		</id>  
+		<!--discriminator(鉴别器):缺省类型为string,这里指定为int类型 -->  
+		<discriminator column="type" type="int"></discriminator>  
+		<property name="name" unique="true"/>  
+		<!-- name="department" 这个名称必须与Employee中的属性名一致. 设置了column="depart_id",默认它会去department中找id与depart_id值相等的对象.如果要找name的值与depart_id相等的对象,则可以设置property-ref="name" -->  
+		<many-to-one name="department" column="depart_id" />  
+		<subclass name="Skiller" discriminator-value="1">  
+		    <property name="skill" />  
+		</subclass>  
+		<subclass name="Sales" discriminator-value="2">  
+		    <property name="saleAmount" />  
+		</subclass>  
+	    </class>  
+	</hibernate-mapping>  
+
+	优点：操作效率高
+	缺点：如果说给employee增加子类的话,必须修改表结构,给表结构增加一个字段；同时表中对应子类的字段不能有非空约束.
+
+     b. 继承关系树的每个类对应一个表，子类表和父类表通过外键关联，在关系数据模型中用外键参照关系来表示继承关系
+
+        <hibernate-mapping package="com.reiyen.hibernate.domain">  
+	    <class name="Employee">  
+		<id name="id">  
+		    <generator class="native" />  
+		</id>  
+		<property name="name" unique="true"/>  
+		<!-- name="department" 这个名称必须与Employee中的属性名一致. 设置了column="depart_id",默认它会去department中找id与depart_id值相等的对象.如果要找name的值与depart_id相等的对象,则可以设置property-ref="name" -->  
+		<many-to-one name="department" column="depart_id" />  
+		<joined-subclass name="Skiller" table="skiller">  
+		 <key column="employee_id" />  
+		 <property name="skill" />  
+		</joined-subclass>  
+		<joined-subclass name="Sales" table="sales">  
+		 <key column="employee_id" />  
+		 <property name="saleAmount" column="sale_amount" />  
+		</joined-subclass>  
+	    </class>  
+	</hibernate-mapping>  
+
+
+
+     c. 继承关系树的每个具体类对应一个表，关系数据模型完全不支持域模型中的继承关系和多态。
+
+         <hibernate-mapping package="com.reiyen.hibernate.domain">  
+		<class name="Employee" abstract="true">  
+		<id name="id">  
+		    <generator class="hilo" />  
+		</id>  
+		<property name="name" unique="true" />  
+		<many-to-one name="department" column="depart_id" />  
+		<union-subclass name="Skiller" table="skiller">  
+		 <property name="skill" />  
+		</union-subclass>  
+		<union-subclass name="Sales" table="sales">  
+		 <property name="saleAmount" column="sale_amount" />  
+		</union-subclass>  
+	    </class>  
+	</hibernate-mapping>
+
+	如果Employee是一个抽象类， 你不想 在数据表中对应相应的数据表，则可以设置abstract="true"
+	此外，如果继承关系中有接口，可以把它当作抽象类对待。
+
+     d. 假设如果Sales的属性很多，而Skiller的属性很少：混合使用一个继承关系树一张表和每个子类一张表
+
+        <hibernate-mapping package="com.reiyen.hibernate.domain">  
+	    <class name="Employee" discriminator-value="0">  
+		<id name="id">  
+		    <generator class="native" />  
+		</id>  
+		<discriminator column="type" type="int" />  
+		<property name="name" unique="true" />  
+		<!-- name="department" 这个名称必须与Employee中的属性名一致. 设置了column="depart_id",默认它会去department中找id与depart_id值相等的对象.如果要找name的值与depart_id相等的对象,则可以设置property-ref="name" -->  
+		<many-to-one name="department" column="depart_id" />  
+	<!--如果discriminator-value没有显式的给定值的话，则与name属性的值保持一致，即为Skiller -->        
+	<subclass name="Skiller" discriminator-value="1">  
+		    <property name="skill" />  
+		</subclass>  
+		<subclass name="Sales" discriminator-value="2">  
+		    <join table="sales">  
+			<key column="employee_id" />  
+			<property name="saleAmount" column="sale_amount" />  
+		    </join>  
+		</subclass>  
+	    </class>  
+	</hibernate-mapping>  
+
+
+	三种映射方式的比较和选择
+	为了方便说明为三种方式按顺序标号为[1]整个继承树一张表;[2]每子类对应一个表(joined-subclass);[4]每个具体类对应一个表（union-subclass）。
+	1、复杂度：
+
+	    [1]简单；
+	    [2]表较多且之间有外键约束；
+
+	    [4]包含重复字段；
+	2、查询性能：
+
+	    [1]效率高；
+	    [2]需要表内连接或左外连接；
+
+	    [4]若查询父类需查所有子类表；
+	3、可维护性：
+
+	    [1]只需修改一个表；
+	    [2]若某个类属性变化只修改这个类对应的表；
+
+	    [4]若父类属性变化需要修改所有子类对应的表；
+	综上，选择时，可以参考以下原则：
+	1、子类属性不是非常多时，优先考虑[1]，因为其性能最佳。
+	2、子类属性非常多，且对性能要求不是很严格时，优先考虑[2]
+
+       
+
+     
+
+
+	 
+
+
+	    
+
+
+
+
+
 
     
 
